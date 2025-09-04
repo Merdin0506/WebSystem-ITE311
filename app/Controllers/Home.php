@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index()
+    public function index(): String
     {
         // CI4 way of loading a view
         return view('template');
