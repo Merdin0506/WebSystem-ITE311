@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ITE311-HARID</title>
+    <title>ITE311-HARID - About</title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -16,10 +16,10 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link active" href="/auth/index">Home</a>
+          <a class="nav-link" href="/auth/index">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/auth/about">About</a>
+          <a class="nav-link active" href="/auth/about">About</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/auth/contact">Contact</a>
@@ -30,8 +30,8 @@
 </nav>
 
 <div class="container mt-5">
-    <h1>Welcome </h1>
-    <p>This is a simple Bootstrap page loaded via CodeIgniter.</p>
+    <h1>About Us</h1>
+    <p>This page provides information about our application and team.</p>
 </div>
 
 <!-- Bootstrap JS Bundle -->

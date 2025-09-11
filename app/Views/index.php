@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ITE311-HARID</title>
+    <title>ITE311-HARID - Home</title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -30,8 +30,8 @@
 </nav>
 
 <div class="container mt-5">
-    <h1>Welcome </h1>
-    <p>This is a simple Bootstrap page loaded via CodeIgniter.</p>
+    <h1>Welcome to the Homepage</h1>
+    <p>This is the main page of our application.</p>
 </div>
 
 <!-- Bootstrap JS Bundle -->
