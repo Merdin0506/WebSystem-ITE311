@@ -16,13 +16,13 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="/auth/index">Home</a>
+          <a class="nav-link" href="/index">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="/auth/about">About</a>
+          <a class="nav-link active" href="/about">About</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/auth/contact">Contact</a>
+          <a class="nav-link" href="/contact">Contact</a>
         </li>
       </ul>
     </div>
