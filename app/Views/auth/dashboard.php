@@ -27,7 +27,7 @@
                             <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit"></i> Profile</a></li>
                             <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <li><a class="dropdown-item" href="<?= site_url('auth/logout') ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -164,7 +164,7 @@
                                 </a>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <a href="/auth/logout" class="btn btn-outline-danger btn-lg w-100">
+                                <a href="<?= site_url('auth/logout') ?>" class="btn btn-outline-danger btn-lg w-100">
                                     <i class="fas fa-sign-out-alt"></i><br>
                                     Logout
                                 </a>

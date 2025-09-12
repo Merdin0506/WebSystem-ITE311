@@ -16,13 +16,13 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="/index">Home</a>
+          <a class="nav-link" href="<?= site_url() ?>">Home</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="/about">About</a>
+          <a class="nav-link active" href="<?= site_url('about') ?>">About</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/contact">Contact</a>
+          <a class="nav-link" href="<?= site_url('contact') ?>">Contact</a>
         </li>
       </ul>
     </div>

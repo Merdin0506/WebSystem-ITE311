@@ -31,7 +31,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <?= form_open('/auth/register', ['class' => 'needs-validation', 'novalidate' => true]) ?>
+                        <?= form_open(site_url('auth/register'), ['class' => 'needs-validation', 'novalidate' => true]) ?>
                             
                             <div class="mb-3">
                                 <label for="name" class="form-label">
@@ -114,7 +114,7 @@
 
                         <div class="text-center">
                             <p class="mb-0">Already have an account?</p>
-                            <a href="/auth/login" class="btn btn-outline-secondary">
+                            <a href="<?= site_url('auth/login') ?>" class="btn btn-outline-secondary">
                                 <i class="fas fa-sign-in-alt"></i> Login Here
                             </a>
                         </div>
