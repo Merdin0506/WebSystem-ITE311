@@ -142,7 +142,7 @@ class Auth extends BaseController
                     
                     // Set welcome flash message
                     session()->setFlashdata('success', 'Welcome back, ' . $user['name'] . '!');
-                    return redirect()->to('/auth/dashboard');
+
                 } else {
                     // Invalid credentials
                     session()->setFlashdata('error', 'Invalid email or password.');
@@ -195,17 +195,23 @@ class Auth extends BaseController
         ];
 
         // Load user enrollments
-        $enrollmentModel = new EnrollmentModel();
-        $enrollments = $enrollmentModel->getUserEnrollments($userId);
-        $data['enrollments'] = $enrollments;
+        try {
+            $enrollmentModel = new EnrollmentModel();
+            $enrollments = $enrollmentModel->getUserEnrollments($userId);
+            $data['enrollments'] = $enrollments;
 
-        // Determine available courses (not enrolled yet)
-        $enrolledCourseIds = array_column($enrollments, 'course_id');
-        $courseBuilder = $this->db->table('courses');
-        if (!empty($enrolledCourseIds)) {
-            $courseBuilder->whereNotIn('id', $enrolledCourseIds);
+            // Determine available courses (not enrolled yet)
+            $enrolledCourseIds = array_column($enrollments, 'course_id');
+            $courseBuilder = $this->db->table('courses');
+            if (!empty($enrolledCourseIds)) {
+                $courseBuilder->whereNotIn('id', $enrolledCourseIds);
+            }
+            $data['availableCourses'] = $courseBuilder->get()->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Dashboard error: ' . $e->getMessage());
+            $data['enrollments'] = [];
+            $data['availableCourses'] = [];
         }
-        $data['availableCourses'] = $courseBuilder->get()->getResultArray();
         
         // Load dashboard view
         return view('auth/dashboard', $data);
