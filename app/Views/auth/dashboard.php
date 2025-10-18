@@ -24,8 +24,9 @@
                             <i class="fas fa-user"></i> <?= $user['name'] ?>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a class="dropdown-item" href="<?= base_url('auth/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="<?= base_url('courses') ?>"><i class="fas fa-book"></i> Courses</a></li>
+                            <li><a class="dropdown-item" href="<?= base_url('announcements') ?>"><i class="fas fa-megaphone"></i> Announcements</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="<?= site_url('auth/logout') ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>

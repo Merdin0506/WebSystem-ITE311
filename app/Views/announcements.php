@@ -12,7 +12,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <i class="fas fa-megaphone"></i> Announcements
+                <i class="fas fa-bullhorn"></i> Announcements
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -26,15 +26,15 @@
                         <ul class="dropdown-menu">
                             <?php $role = session()->get('role'); ?>
                             <?php if ($role === 'admin'): ?>
-                                <li><a class="dropdown-item" href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('admin/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                             <?php elseif ($role === 'teacher'): ?>
-                                <li><a class="dropdown-item" href="/teacher/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('teacher/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                             <?php else: ?>
-                                <li><a class="dropdown-item" href="/auth/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('auth/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                             <?php endif; ?>
-                            <li><a class="dropdown-item" href="/courses"><i class="fas fa-book"></i> Courses</a></li>
+                            <li><a class="dropdown-item" href="<?= base_url('courses') ?>"><i class="fas fa-book"></i> Courses</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="<?= site_url('auth/logout') ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            <li><a class="dropdown-item" href="<?= base_url('auth/logout') ?>"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -43,16 +43,17 @@
     </nav>
 
     <div class="container mt-4">
+        <!-- Flash Messages - Shows "Access Denied: Insufficient Permissions" -->
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
+                <i class="fas fa-check-circle"></i> <strong>Success!</strong> <?= session()->getFlashdata('success') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
 
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle"></i> <?= session()->getFlashdata('error') ?>
+                <i class="fas fa-exclamation-circle"></i> <strong>Error!</strong> <?= session()->getFlashdata('error') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
