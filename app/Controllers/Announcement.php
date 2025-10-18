@@ -19,13 +19,13 @@ class Announcement extends BaseController
      */
     public function index()
     {
-        // require login (visible to logged-in users only)
+        // Require login
         if (! session()->get('isLoggedIn')) {
             session()->setFlashdata('error', 'Please login to view announcements.');
-            return redirect()->to('/auth/login');
+            return redirect()->to(base_url('auth/login'));
         }
 
-        // fetch announcements ordered newest first via model
+        // Fetch announcements ordered newest first
         try {
             $announcements = $this->announcementModel
                 ->orderBy('created_at', 'DESC')

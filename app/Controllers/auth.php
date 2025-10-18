@@ -143,6 +143,16 @@ class Auth extends BaseController
                     // Set welcome flash message
                     session()->setFlashdata('success', 'Welcome back, ' . $user['name'] . '!');
 
+                    // Role-based redirection
+                    $role = $user['role'] ?? 'user';
+                    if ($role === 'admin') {
+                        return redirect()->to(base_url('admin/dashboard'));
+                    } elseif ($role === 'teacher') {
+                        return redirect()->to(base_url('teacher/dashboard'));
+                    } else {
+                        // Student/default users go to announcements
+                        return redirect()->to(base_url('announcements'));
+                    }
                 } else {
                     // Invalid credentials
                     session()->setFlashdata('error', 'Invalid email or password.');

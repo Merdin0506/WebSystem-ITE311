@@ -15,6 +15,75 @@ class Admin extends BaseController
         helper(['form', 'url']);
     }
 
+    public function dashboard()
+    {
+        // Require login
+        if (! session()->get('isLoggedIn')) {
+            session()->setFlashdata('error', 'Please login to access the admin dashboard.');
+            return redirect()->to(base_url('auth/login'));
+        }
+
+        // Require admin role
+        if (session()->get('role') !== 'admin') {
+            session()->setFlashdata('error', 'Access Denied: Insufficient Permissions');
+            return redirect()->to(base_url('announcements'));
+        }
+
+        // Fetch statistics with error handling
+        $data = [
+            'user' => [
+                'name' => session()->get('name'),
+                'email' => session()->get('email'),
+                'role' => session()->get('role')
+            ],
+            'totalUsers' => 0,
+            'totalCourses' => 0,
+            'totalEnrollments' => 0,
+            'totalAnnouncements' => 0,
+            'recentEnrollments' => []
+        ];
+
+        try {
+            $data['totalUsers'] = $this->db->table('users')->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Admin dashboard - users count: ' . $e->getMessage());
+        }
+
+        try {
+            $data['totalCourses'] = $this->db->table('courses')->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Admin dashboard - courses count: ' . $e->getMessage());
+        }
+
+        try {
+            $data['totalEnrollments'] = $this->db->table('enrollments')->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Admin dashboard - enrollments count: ' . $e->getMessage());
+        }
+
+        try {
+            $data['totalAnnouncements'] = $this->db->table('announcements')->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Admin dashboard - announcements count: ' . $e->getMessage());
+        }
+
+        try {
+            $data['recentEnrollments'] = $this->db->table('enrollments e')
+                ->select('e.*, u.name as student_name, c.course_name, c.title')
+                ->join('users u', 'u.id = e.user_id', 'left')
+                ->join('courses c', 'c.id = e.course_id', 'left')
+                ->orderBy('e.created_at', 'DESC')
+                ->limit(5)
+                ->get()
+                ->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Admin dashboard - recent enrollments: ' . $e->getMessage());
+            $data['recentEnrollments'] = [];
+        }
+
+        return view('admin_dashboard', $data);
+    }
+
     public function courses()
     {
         // Require login (you can tighten to admin-only if roles are set)

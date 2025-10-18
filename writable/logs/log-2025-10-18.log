@@ -449,3 +449,63 @@ Stack trace:
 #10 C:\xampp\htdocs\ITE311-harid\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
 #11 {main}
 ERROR - 2025-10-18 10:44:56 --> Admin dashboard - recent enrollments: Unknown column 'c.course_name' in 'field list'
+ERROR - 2025-10-18 12:05:32 --> mysqli_sql_exception: Unknown column 'c.course_name' in 'field list' in C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `e`.*, `...', 0)
+#1 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `e`.*, `...')
+#2 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `e`.*, `...')
+#3 C:\xampp\htdocs\ITE311-harid\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `e`.*, `...', Array, false)
+#4 C:\xampp\htdocs\ITE311-harid\app\Controllers\Admin.php(77): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(933): App\Controllers\Admin->dashboard()
+#6 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin))
+#7 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\ITE311-harid\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\ITE311-harid\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\ITE311-harid\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-18 12:05:32 --> Admin dashboard - recent enrollments: Unknown column 'c.course_name' in 'field list'
+ERROR - 2025-10-18 12:05:43 --> mysqli_sql_exception: Unknown column 'c.course_name' in 'field list' in C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `e`.*, `...', 0)
+#1 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `e`.*, `...')
+#2 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `e`.*, `...')
+#3 C:\xampp\htdocs\ITE311-harid\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `e`.*, `...', Array, false)
+#4 C:\xampp\htdocs\ITE311-harid\app\Controllers\Admin.php(77): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(933): App\Controllers\Admin->dashboard()
+#6 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin))
+#7 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\ITE311-harid\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\ITE311-harid\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\ITE311-harid\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-18 12:05:43 --> Admin dashboard - recent enrollments: Unknown column 'c.course_name' in 'field list'
+ERROR - 2025-10-18 12:09:14 --> mysqli_sql_exception: Unknown column 'c.course_name' in 'field list' in C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `e`.*, `...', 0)
+#1 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `e`.*, `...')
+#2 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `e`.*, `...')
+#3 C:\xampp\htdocs\ITE311-harid\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `e`.*, `...', Array, false)
+#4 C:\xampp\htdocs\ITE311-harid\app\Controllers\Admin.php(77): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(933): App\Controllers\Admin->dashboard()
+#6 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin))
+#7 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\ITE311-harid\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\ITE311-harid\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\ITE311-harid\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-18 12:09:14 --> Admin dashboard - recent enrollments: Unknown column 'c.course_name' in 'field list'
+ERROR - 2025-10-18 12:09:27 --> mysqli_sql_exception: Unknown column 'c.course_name' in 'field list' in C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\ITE311-harid\system\Database\MySQLi\Connection.php(327): mysqli->query('SELECT `e`.*, `...', 0)
+#1 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('SELECT `e`.*, `...')
+#2 C:\xampp\htdocs\ITE311-harid\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('SELECT `e`.*, `...')
+#3 C:\xampp\htdocs\ITE311-harid\system\Database\BaseBuilder.php(1649): CodeIgniter\Database\BaseConnection->query('SELECT `e`.*, `...', Array, false)
+#4 C:\xampp\htdocs\ITE311-harid\app\Controllers\Admin.php(77): CodeIgniter\Database\BaseBuilder->get()
+#5 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(933): App\Controllers\Admin->dashboard()
+#6 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Admin))
+#7 C:\xampp\htdocs\ITE311-harid\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#8 C:\xampp\htdocs\ITE311-harid\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#9 C:\xampp\htdocs\ITE311-harid\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#10 C:\xampp\htdocs\ITE311-harid\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#11 {main}
+ERROR - 2025-10-18 12:09:27 --> Admin dashboard - recent enrollments: Unknown column 'c.course_name' in 'field list'

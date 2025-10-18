@@ -28,62 +28,57 @@ class RoleAuth implements FilterInterface
 		}
 
 		// Get the current path
-		$path = $request->getUri()->getPath();
+		$uri = $request->getUri();
+		$path = $uri->getPath();
 		
-		// Remove base path if present (e.g., /ITE311-harid/public/)
-		$path = preg_replace('#^.*/public/#', '', $path);
+		// Clean the path - remove base folder and public
+		$path = str_replace('/ITE311-harid/public/', '', $path);
+		$path = str_replace('/ITE311-harid/', '', $path);
 		$path = trim($path, '/');
 		
-		// Get the first segment of the path
+		// Get the first segment
 		$segments = explode('/', $path);
 		$prefix = $segments[0] ?? '';
 
-		// Allow /auth/* routes for all logged-in users (login, logout, dashboard, etc.)
-		if ($prefix === 'auth') {
+		// Allow these routes for ALL logged-in users
+		$allowedForAll = ['auth', 'announcements', 'courses', 'course', 'home', 'index', 'about', 'contact', ''];
+		if (in_array($prefix, $allowedForAll)) {
 			return; // allowed
 		}
 
-		// Allow /announcements for all logged-in users
-		if ($prefix === 'announcements' || $path === 'announcements') {
-			return; // allowed
-		}
-
-		// Allow /courses for all logged-in users
-		if ($prefix === 'courses' || $path === 'courses') {
-			return; // allowed
-		}
-
-		// Admin authorization - can access /admin/*
+		// STRICT ROLE-BASED ACCESS CONTROL - BLOCK unauthorized access
+		
+		// ADMIN: Can only access /admin/* routes
 		if ($prefix === 'admin') {
 			if ($role === 'admin') {
 				return; // allowed
 			}
-			// ACCESS DENIED - This is where the message is set
+			// BLOCK: Admin routes for non-admins
 			$session->setFlashdata('error', 'Access Denied: Insufficient Permissions');
 			return redirect()->to(base_url('announcements'));
 		}
 
-		// Teacher authorization - can access /teacher/*
+		// TEACHER: Can only access /teacher/* routes
 		if ($prefix === 'teacher') {
 			if ($role === 'teacher') {
 				return; // allowed
 			}
-			// ACCESS DENIED - This is where the message is set
+			// BLOCK: Teacher routes for non-teachers (including admins)
 			$session->setFlashdata('error', 'Access Denied: Insufficient Permissions');
 			return redirect()->to(base_url('announcements'));
 		}
 
-		// Student authorization - can access /student/* and /announcements
+		// STUDENT: Can only access /student/* routes
 		if ($prefix === 'student') {
 			if ($role === 'student' || $role === 'user') {
 				return; // allowed
 			}
-			// ACCESS DENIED - This is where the message is set
+			// BLOCK: Student routes for non-students
 			$session->setFlashdata('error', 'Access Denied: Insufficient Permissions');
 			return redirect()->to(base_url('announcements'));
 		}
 
-		// Allow other routes (home, etc.)
+		// Default: allow other routes
 		return;
 	}
 
