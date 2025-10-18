@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\EnrollmentModel;
+
 class Auth extends BaseController
 {
     protected $db;
@@ -182,14 +184,28 @@ class Auth extends BaseController
         }
         
         // Get user data from session
+        $userId = (int) session()->get('userID');
         $data = [
             'user' => [
-                'id' => session()->get('userID'),
+                'id' => $userId,
                 'name' => session()->get('name'),
                 'email' => session()->get('email'),
                 'role' => session()->get('role')
             ]
         ];
+
+        // Load user enrollments
+        $enrollmentModel = new EnrollmentModel();
+        $enrollments = $enrollmentModel->getUserEnrollments($userId);
+        $data['enrollments'] = $enrollments;
+
+        // Determine available courses (not enrolled yet)
+        $enrolledCourseIds = array_column($enrollments, 'course_id');
+        $courseBuilder = $this->db->table('courses');
+        if (!empty($enrolledCourseIds)) {
+            $courseBuilder->whereNotIn('id', $enrolledCourseIds);
+        }
+        $data['availableCourses'] = $courseBuilder->get()->getResultArray();
         
         // Load dashboard view
         return view('auth/dashboard', $data);

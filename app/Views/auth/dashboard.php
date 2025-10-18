@@ -37,6 +37,8 @@
 
     <div class="container mt-4">
         
+        <div id="alerts"></div>
+
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle"></i> <?= session()->getFlashdata('success') ?>
@@ -175,6 +177,75 @@
             </div>
         </div>
 
+        <!-- Enrolled Courses -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-book-reader"></i> Enrolled Courses
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($enrollments)): ?>
+                            <div class="list-group" id="enrolledCoursesList">
+                                <?php foreach ($enrollments as $en): ?>
+                                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold"><?= esc($en['title'] ?? 'Untitled Course') ?></div>
+                                            <small class="text-muted">Enrolled on: <?= esc($en['enrollment_date'] ?? '') ?></small>
+                                            <?php if (!empty($en['description'])): ?>
+                                                <div class="small mt-1 text-secondary"><?= esc($en['description']) ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">Enrolled</span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div id="enrolledCoursesList" class="list-group"></div>
+                            <p id="noEnrollmentsMsg" class="text-muted mb-0">You are not enrolled in any courses yet.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Courses -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-list"></i> Available Courses
+                        </h6>
+                        <small class="text-muted">Enroll to start learning</small>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($availableCourses)): ?>
+                            <div class="list-group" id="availableCoursesList">
+                                <?php foreach ($availableCourses as $course): ?>
+                                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold"><?= esc($course['title']) ?></div>
+                                            <?php if (!empty($course['description'])): ?>
+                                                <div class="small text-secondary"><?= esc($course['description']) ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <button class="btn btn-sm btn-primary enroll-btn" data-course-id="<?= (int) $course['id'] ?>" data_course_id="<?= (int) $course['id'] ?>">
+                                            <i class="fas fa-user-plus"></i> Enroll
+                                        </button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted mb-0">No available courses at the moment.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Session Information -->
         <div class="row">
             <div class="col-12">
@@ -213,6 +284,76 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function($) {
+            const routeUrl = '<?= site_url('course/enroll') ?>';
+            const csrf = {
+                enabled: <?= function_exists('csrf_token') ? 'true' : 'false' ?>,
+                name: '<?= function_exists('csrf_token') ? csrf_token() : '' ?>',
+                hash: '<?= function_exists('csrf_hash') ? csrf_hash() : '' ?>'
+            };
+
+            function showAlert(type, message) {
+                const $alert = $('<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert"></div>')
+                    .html('<i class="fas ' + (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle') + '"></i> ' + message)
+                    .append('<button type="button" class="btn-close" data-bs-dismiss="alert"></button>');
+                $('#alerts').empty().append($alert);
+            }
+
+            $(document).on('click', '.enroll-btn', function(e) {
+                e.preventDefault();
+                const $btn = $(this);
+                const courseId = $btn.data('course-id') || $btn.attr('data_course_id');
+                if (!courseId) return;
+
+                // Spinner state
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enrolling...');
+
+                const payload = { course_id: courseId };
+                if (csrf.enabled && csrf.name && csrf.hash) {
+                    payload[csrf.name] = csrf.hash;
+                }
+
+                $.post(routeUrl, payload, function(resp) {
+                    if (resp && resp.success) {
+                        showAlert('success', resp.message || 'Enrolled successfully.');
+
+                        // Build enrolled item from DOM context
+                        const $item = $btn.closest('.list-group-item');
+                        const title = $item.find('.fw-bold').text().trim();
+                        const desc = $item.find('.small.text-secondary').text().trim();
+                        const enrolledAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                        const enrolledHtml = [
+                            '<div class="list-group-item list-group-item-action d-flex justify-content-between align-items-start">',
+                            '  <div class="ms-2 me-auto">',
+                            '    <div class="fw-bold">' + $('<div>').text(title || 'Untitled Course').html() + '</div>',
+                            '    <small class="text-muted">Enrolled on: ' + enrolledAt + '</small>',
+                            desc ? ('    <div class="small mt-1 text-secondary">' + $('<div>').text(desc).html() + '</div>') : '',
+                            '  </div>',
+                            '  <span class="badge bg-success rounded-pill">Enrolled</span>',
+                            '</div>'
+                        ].join('');
+
+                        $('#noEnrollmentsMsg').remove();
+                        $('#enrolledCoursesList').append(enrolledHtml);
+
+                        // Update button to completed state and remove available item
+                        $btn.removeClass('btn-primary').addClass('btn-success').html('<i class="fas fa-check"></i> Enrolled');
+                        setTimeout(() => { $item.slideUp(200, function(){ $(this).remove(); }); }, 600);
+                    } else {
+                        $btn.prop('disabled', false).removeClass('btn-primary').addClass('btn-warning').html('<i class="fas fa-exclamation-circle"></i> Try Again');
+                        showAlert('warning', (resp && resp.message) ? resp.message : 'Enrollment failed.');
+                    }
+                }, 'json')
+                .fail(function() {
+                    $btn.prop('disabled', false).removeClass('btn-primary').addClass('btn-danger').html('<i class="fas fa-times"></i> Error');
+                    showAlert('danger', 'Network error. Please try again.');
+                });
+            });
+        })(jQuery);
+    </script>
 </body>
 </html>
