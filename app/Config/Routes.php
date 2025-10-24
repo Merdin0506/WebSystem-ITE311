@@ -46,4 +46,10 @@ $routes->group('student', ['filter' => 'roleauth'], function($routes) {
 	$routes->get('dashboard', 'Auth::dashboard');
 });
 
+// Materials routes
+$routes->get('/admin/course/(:num)/upload', 'Materials::upload/$1');
+$routes->post('/admin/course/(:num)/upload', 'Materials::upload/$1');
+$routes->get('/materials/delete/(:num)', 'Materials::delete/$1');
+$routes->get('/materials/download/(:num)', 'Materials::download/$1');
+
 $routes->setAutoRoute(true);
