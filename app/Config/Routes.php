@@ -21,6 +21,13 @@ $routes->get('auth/dashboard', 'Auth::dashboard');
 
 // Course Routes
 $routes->get('courses', 'Course::index');
+$routes->get('courses/search', 'Course::search');
+$routes->post('courses/search', 'Course::search');
+$routes->options('courses/search', 'Course::search');
+$routes->get('debug/courses', 'Debug::testCourses');
+$routes->get('debug/auth', 'Debug::testAuth');
+$routes->get('debug/search', 'Debug::testSearch');
+$routes->get('diagnostic', function() { return view('diagnostic'); });
 $routes->post('course/enroll', 'Course::enroll');
 $routes->post('/course/enroll', 'Course::enroll');
 

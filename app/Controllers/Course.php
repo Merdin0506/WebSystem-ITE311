@@ -28,7 +28,13 @@ class Course extends BaseController
         $enrollModel = new EnrollmentModel();
         $userId = (int) session()->get('userID');
 
-        $courses = $courseModel->orderBy('created_at', 'DESC')->findAll();
+        // Get courses with instructor names
+        $courses = $this->db->table('courses')
+            ->select('courses.*, users.name as instructor_name')
+            ->join('users', 'users.id = courses.instructor_id', 'left')
+            ->orderBy('courses.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
 
         // Build enrolled set for quick lookup
         $userEnrollments = $enrollModel->where('user_id', $userId)->findAll();
@@ -130,5 +136,95 @@ class Course extends BaseController
                 'message' => 'An error occurred during enrollment: ' . $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Search courses functionality
+     * Accepts both GET and POST requests with search term
+     * Returns JSON for AJAX requests or renders view for regular requests
+     */
+    public function search()
+    {
+        // Set CORS headers for AJAX requests
+        $this->response->setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+        $this->response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        $this->response->setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization');
+        $this->response->setHeader('Access-Control-Allow-Credentials', 'true');
+
+        // Handle OPTIONS preflight request
+        if ($this->request->getMethod() === 'options') {
+            return $this->response->setStatusCode(200);
+        }
+
+        if (!session()->get('isLoggedIn')) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Please login to search courses.'
+                ]);
+            }
+            return redirect()->to('/auth/login')->with('error', 'Please login to search courses.');
+        }
+
+        $searchTerm = $this->request->getVar('search') ?? $this->request->getPost('search');
+        $courseModel = new CourseModel();
+        $enrollModel = new EnrollmentModel();
+        $userId = (int) session()->get('userID');
+
+        // Debug logging
+        log_message('debug', 'Course search initiated. Search term: ' . ($searchTerm ?? 'empty') . ', User ID: ' . $userId);
+
+        if (!empty($searchTerm)) {
+            // Use Query Builder to search courses with instructor names using LIKE queries
+            $courses = $this->db->table('courses')
+                ->select('courses.*, users.name as instructor_name')
+                ->join('users', 'users.id = courses.instructor_id', 'left')
+                ->groupStart()
+                    ->like('courses.title', $searchTerm)
+                    ->orLike('courses.description', $searchTerm)
+                    ->orLike('users.name', $searchTerm)
+                ->groupEnd()
+                ->orderBy('courses.created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+        } else {
+            // If no search term, return all courses with instructor names
+            $courses = $this->db->table('courses')
+                ->select('courses.*, users.name as instructor_name')
+                ->join('users', 'users.id = courses.instructor_id', 'left')
+                ->orderBy('courses.created_at', 'DESC')
+                ->get()
+                ->getResultArray();
+        }
+
+        // Debug logging
+        log_message('debug', 'Course search results: Found ' . count($courses) . ' courses');
+
+        // Get enrolled course IDs for the current user
+        $userEnrollments = $enrollModel->where('user_id', $userId)->findAll();
+        $enrolledCourseIds = array_column($userEnrollments, 'course_id');
+
+        // Check if this is an AJAX request
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => true,
+                'courses' => $courses,
+                'enrolledCourseIds' => $enrolledCourseIds,
+                'searchTerm' => $searchTerm,
+                'totalResults' => count($courses),
+                'debug' => [
+                    'search_term' => $searchTerm,
+                    'user_id' => $userId,
+                    'course_count' => count($courses)
+                ]
+            ]);
+        }
+
+        // For regular requests, render the view
+        return view('courses/index', [
+            'courses' => $courses,
+            'enrolledCourseIds' => $enrolledCourseIds,
+            'searchTerm' => $searchTerm ?? ''
+        ]);
     }
 }

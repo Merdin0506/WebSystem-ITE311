@@ -136,9 +136,8 @@
         });
         
         function loadNotificationCount() {
-            // Add timestamp to prevent caching
-            const timestamp = new Date().getTime();
-            fetch('<?= base_url('student/test-notifications') ?>?t=' + timestamp, {
+            // Use the notifications endpoint instead of test-notifications
+            fetch('<?= base_url('student/notifications') ?>', {
                 method: 'GET',
                 headers: {
                     'Cache-Control': 'no-cache',
@@ -148,10 +147,12 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Fresh notification data:', data);
-                updateNotificationBadge(data.unread_count);
+                updateNotificationBadge(data.unread_count || 0);
             })
             .catch(error => {
                 console.log('Could not load notification count:', error);
+                // Fail silently - just hide the badge
+                updateNotificationBadge(0);
             });
         }
         
