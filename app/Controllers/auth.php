@@ -150,8 +150,8 @@ class Auth extends BaseController
                     } elseif ($role === 'teacher') {
                         return redirect()->to(base_url('teacher/dashboard'));
                     } else {
-                        // Student/default users go to announcements
-                        return redirect()->to(base_url('announcements'));
+                        // Student/default users go to student dashboard
+                        return redirect()->to(base_url('student/dashboard'));
                     }
                 } else {
                     // Invalid credentials
@@ -223,7 +223,20 @@ class Auth extends BaseController
             $data['availableCourses'] = [];
         }
         
-        // Load dashboard view
-        return view('auth/dashboard', $data);
+        // Redirect to role-specific dashboard instead of showing generic dashboard
+        $userRole = session()->get('role');
+        
+        switch ($userRole) {
+            case 'admin':
+                return redirect()->to('/admin/dashboard');
+            case 'teacher':
+                return redirect()->to('/teacher/dashboard');
+            case 'student':
+            case 'user':
+                return redirect()->to('/student/dashboard');
+            default:
+                // Fallback to generic dashboard for unknown roles
+                return view('auth/dashboard', $data);
+        }
     }
 }

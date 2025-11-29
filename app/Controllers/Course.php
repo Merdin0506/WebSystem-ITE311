@@ -8,6 +8,12 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Course extends BaseController
 {
+    protected $db;
+    
+    public function __construct()
+    {
+        $this->db = \Config\Database::connect();
+    }
     /**
      * Display available courses and whether the logged-in student is enrolled.
      */
@@ -60,33 +66,69 @@ class Course extends BaseController
                 ->setJSON(['success' => false, 'message' => 'Invalid course.']);
         }
 
-        $userId = (int) session()->get('userID');
-        $model  = new EnrollmentModel();
+        $userId = session()->get('userID');
+        $enrollmentModel = new EnrollmentModel();
+        $courseModel = new CourseModel();
 
-        // Check duplicate
-        if ($model->isAlreadyEnrolled($userId, $courseId)) {
+        // Check if course exists
+        $course = $courseModel->find($courseId);
+        if (!$course) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_NOT_FOUND)
+                ->setJSON(['success' => false, 'message' => 'Course not found.']);
+        }
+
+        // Check if already enrolled
+        $existingEnrollment = $enrollmentModel->where('user_id', $userId)
+                                            ->where('course_id', $courseId)
+                                            ->first();
+
+        if ($existingEnrollment) {
+            log_message('debug', "Enroll: User $userId already enrolled in course $courseId");
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'You are already enrolled in this course.'
             ]);
         }
 
-        // Enroll user
-        $insertId = $model->enrollUser([
-            'user_id'         => $userId,
-            'course_id'       => $courseId,
-            'enrollment_date' => date('Y-m-d H:i:s'),
-        ]);
+        // Try to enroll
+        try {
+            $enrollData = [
+                'user_id' => $userId,
+                'course_id' => $courseId,
+                'enrollment_date' => date('Y-m-d H:i:s')
+            ];
+            
+            $enrollmentId = $enrollmentModel->insert($enrollData);
 
-        if ($insertId === false) {
-            return $this->response->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR)
-                ->setJSON(['success' => false, 'message' => 'Failed to enroll. Please try again.']);
+            if ($enrollmentId) {
+                // Create notification
+                $message = 'You have been enrolled in ' . $course['title'];
+                $notificationModel = new \App\Models\NotificationModel();
+                $notifId = $notificationModel->insert([
+                    'user_id' => $userId,
+                    'message' => $message,
+                    'is_read' => 0,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+                log_message('debug', "Enroll: Notification $notifId created for user $userId after enrolling in course $courseId");
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Enrollment successful! You are now enrolled in ' . $course['title'] . '.'
+                ]);
+            } else {
+                log_message('error', "Enroll: Failed to insert enrollment for user $userId course $courseId");
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Enrollment failed. Please try again.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', "Enroll: Exception - " . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred during enrollment: ' . $e->getMessage()
+            ]);
         }
-
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Enrolled successfully.',
-            'enrollment_id' => $insertId,
-        ]);
     }
 }

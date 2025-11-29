@@ -27,13 +27,20 @@ $routes->post('/course/enroll', 'Course::enroll');
 // Announcements
 $routes->get('announcements', 'Announcement::index');
 
+// Notifications
+$routes->get('notifications', 'Notifications::get');
+$routes->post('notifications/mark_read/(:num)', 'Notifications::mark_as_read/$1');
+
 // Admin routes - PROTECTED by RoleAuth filter
 $routes->group('admin', ['filter' => 'roleauth'], function($routes) {
 	$routes->get('dashboard', 'Admin::dashboard');
 	$routes->get('courses', 'Admin::courses');
 	$routes->post('courses/store', 'Admin::storeCourse');
+	$routes->get('courses/delete/(:num)', 'Admin::deleteCourse/$1');
 	$routes->get('enrollments', 'Admin::enrollments');
 	$routes->post('enrollments/store', 'Admin::storeEnrollment');
+	$routes->get('browse-uploads', 'Admin::browseUploads');
+	$routes->get('materials', 'Admin::allMaterials');
 });
 
 // Teacher routes - PROTECTED by RoleAuth filter
@@ -43,7 +50,40 @@ $routes->group('teacher', ['filter' => 'roleauth'], function($routes) {
 
 // Student routes - PROTECTED by RoleAuth filter
 $routes->group('student', ['filter' => 'roleauth'], function($routes) {
-	$routes->get('dashboard', 'Auth::dashboard');
+	$routes->get('dashboard', 'StudentDashboard::dashboard');
+	$routes->get('my-courses', 'StudentDashboard::myCourses');
+	$routes->get('available-courses', 'StudentDashboard::availableCourses');
+	$routes->get('course/(:num)/materials', 'StudentDashboard::courseMaterials/$1');
+	$routes->get('assignments', 'StudentDashboard::assignments');
+	$routes->get('grades', 'StudentDashboard::grades');
+	$routes->get('announcements', 'StudentDashboard::announcements');
+	$routes->get('notifications', 'StudentDashboard::notifications');
+	$routes->post('mark-as-read', 'StudentDashboard::markAsRead');
+	$routes->post('mark-all-as-read', 'StudentDashboard::markAllAsRead');
+$routes->get('student/test-notifications', 'StudentDashboard::testNotifications');
 });
+
+// Security Testing Routes (for laboratory verification)
+$routes->group('security-test', function($routes) {
+    $routes->get('unauthorized', 'SecurityTest::testUnauthorized');
+    $routes->get('sql-injection', 'SecurityTest::testSqlInjection');
+    $routes->get('csrf', 'SecurityTest::testCsrf');
+    $routes->get('data-tampering', 'SecurityTest::testDataTampering');
+    $routes->get('input-validation', 'SecurityTest::testInputValidation');
+});
+
+// Materials Management Routes
+$routes->get('/admin/course/(:num)/upload', 'Materials::upload/$1');
+$routes->post('/admin/course/(:num)/upload', 'Materials::upload/$1');
+$routes->post('/materials/processQuickUpload', 'Materials::processQuickUpload');
+$routes->get('/admin/course/(:num)/materials', 'Materials::listByCourse/$1');
+$routes->get('/materials/delete/(:num)', 'Materials::delete/$1');
+$routes->get('/materials/download/(:num)', 'Materials::download/$1');
+$routes->get('/student/materials', 'Materials::studentMaterials');
+
+// Admin API Routes
+$routes->get('/admin/api/test', 'Admin::test');
+$routes->get('/admin/api/courses', 'Admin::apiCourses');
+$routes->get('/admin/api/materials', 'Admin::apiMaterials');
 
 $routes->setAutoRoute(true);

@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use App\Models\NotificationModel;
 
 /**
  * Class BaseController
@@ -43,6 +44,9 @@ abstract class BaseController extends Controller
      */
     // protected $session;
 
+    // Declare notificationCount property
+    protected $notificationCount = 0;
+
     /**
      * @return void
      */
@@ -54,5 +58,19 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         // E.g.: $this->session = service('session');
+
+        // Debug: Log session and notification count
+        log_message('debug', 'Session userID: ' . session()->get('userID'));
+        log_message('debug', 'Session isLoggedIn: ' . session()->get('isLoggedIn'));
+
+        // Fetch unread notification count for logged-in user
+        if (session()->get('isLoggedIn')) {
+            $notificationModel = new NotificationModel();
+            $userId = session()->get('userID');
+            $this->notificationCount = $notificationModel->getUnreadCount($userId);
+
+            // Debug: Log notification count
+            log_message('debug', 'Notification count for user ' . $userId . ': ' . $this->notificationCount);
+        }
     }
 }

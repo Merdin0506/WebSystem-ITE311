@@ -30,7 +30,7 @@
                             <?php elseif ($role === 'teacher'): ?>
                                 <li><a class="dropdown-item" href="<?= base_url('teacher/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                             <?php else: ?>
-                                <li><a class="dropdown-item" href="<?= base_url('auth/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('student/dashboard') ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                             <?php endif; ?>
                             <li><a class="dropdown-item" href="<?= base_url('courses') ?>"><i class="fas fa-book"></i> Courses</a></li>
                             <li><hr class="dropdown-divider"></li>

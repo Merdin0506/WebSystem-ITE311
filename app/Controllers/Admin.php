@@ -40,7 +40,8 @@ class Admin extends BaseController
             'totalCourses' => 0,
             'totalEnrollments' => 0,
             'totalAnnouncements' => 0,
-            'recentEnrollments' => []
+            'recentEnrollments' => [],
+            'courses' => []
         ];
 
         try {
@@ -50,9 +51,12 @@ class Admin extends BaseController
         }
 
         try {
-            $data['totalCourses'] = $this->db->table('courses')->countAllResults();
+            $courseModel = new CourseModel();
+            $courses = $courseModel->findAll();
+            $data['courses'] = $courses;
+            $data['totalCourses'] = count($courses);
         } catch (\Exception $e) {
-            log_message('error', 'Admin dashboard - courses count: ' . $e->getMessage());
+            log_message('error', 'Admin dashboard - courses: ' . $e->getMessage());
         }
 
         try {
@@ -79,6 +83,20 @@ class Admin extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Admin dashboard - recent enrollments: ' . $e->getMessage());
             $data['recentEnrollments'] = [];
+        }
+
+        try {
+            // Admin can see all recent materials from all courses (no enrollment required)
+            $data['recentMaterials'] = $this->db->table('materials m')
+                ->select('m.*, c.title as course_name')
+                ->join('courses c', 'c.id = m.course_id', 'left')
+                ->orderBy('m.created_at', 'DESC')
+                ->limit(5)
+                ->get()
+                ->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Admin dashboard - recent materials: ' . $e->getMessage());
+            $data['recentMaterials'] = [];
         }
 
         return view('admin_dashboard', $data);
@@ -215,5 +233,206 @@ class Admin extends BaseController
         }
 
         return redirect()->to('/admin/enrollments')->with('success', 'Student enrolled successfully.');
+    }
+
+    /**
+     * Simple test endpoint
+     */
+    public function test()
+    {
+        return $this->response->setJSON(['success' => true, 'message' => 'Admin controller is working']);
+    }
+
+    /**
+     * API: Get all courses for AJAX requests
+     */
+    public function apiCourses()
+    {
+        // Check if user is admin
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied.']);
+        }
+
+        try {
+            $courseModel = new CourseModel();
+            $courses = $courseModel->findAll();
+
+            // Transform the data to match expected format
+            $transformedCourses = array_map(function($course) {
+                return [
+                    'id' => $course['id'],
+                    'course_name' => $course['title'], // Map title to course_name
+                    'course_code' => 'COURSE-' . str_pad($course['id'], 3, '0', STR_PAD_LEFT), // Generate course code
+                    'title' => $course['title'],
+                    'description' => $course['description']
+                ];
+            }, $courses);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'courses' => $transformedCourses
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Admin API courses error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error loading courses: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * API: Get all materials with course info for AJAX requests
+     */
+    public function apiMaterials()
+    {
+        // Check if user is admin
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Access denied.']);
+        }
+
+        try {
+            $query = $this->db->query("
+                SELECT m.*, c.title as course_name, CONCAT('COURSE-', LPAD(c.id, 3, '0')) as course_code 
+                FROM materials m 
+                JOIN courses c ON c.id = m.course_id 
+                ORDER BY m.created_at DESC
+            ");
+            
+            $materials = $query->getResultArray();
+
+            return $this->response->setJSON([
+                'success' => true,
+                'materials' => $materials
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Admin API materials error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error loading materials: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Browse uploaded files
+     */
+    public function browseUploads()
+    {
+        // Check if user is admin
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/auth/login')->with('error', 'Access denied.');
+        }
+
+        $uploadPath = FCPATH . 'uploads/materials';
+        $files = [];
+        
+        if (is_dir($uploadPath)) {
+            $fileList = scandir($uploadPath);
+            foreach ($fileList as $file) {
+                if ($file != '.' && $file != '..' && is_file($uploadPath . '/' . $file)) {
+                    $filePath = $uploadPath . '/' . $file;
+                    $files[] = [
+                        'name' => $file,
+                        'size' => filesize($filePath),
+                        'date' => date('Y-m-d H:i:s', filemtime($filePath)),
+                        'path' => 'uploads/materials/' . $file
+                    ];
+                }
+            }
+            // Sort by date (newest first)
+            usort($files, function($a, $b) {
+                return strtotime($b['date']) - strtotime($a['date']);
+            });
+        }
+
+        $data = [
+            'title' => 'Browse Uploaded Files',
+            'files' => $files,
+            'uploadPath' => $uploadPath
+        ];
+
+        return view('admin/browse_uploads', $data);
+    }
+
+    /**
+     * View all materials from all courses (Admin access)
+     */
+    public function allMaterials()
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/auth/login')->with('error', 'Access denied.');
+        }
+
+        $materialModel = new \App\Models\MaterialModel();
+
+        // Get all materials with course information - Admin has full access
+        $materials = $materialModel->select('materials.*, courses.title as course_name, CONCAT("COURSE-", LPAD(courses.id, 3, "0")) as course_code')
+                    ->join('courses', 'courses.id = materials.course_id')
+                    ->orderBy('materials.created_at', 'DESC')
+                    ->findAll();
+
+        $data = [
+            'title' => 'All Course Materials',
+            'materials' => $materials
+        ];
+
+        return view('admin/materials', $data);
+    }
+
+    /**
+     * Delete course and all related data
+     */
+    public function deleteCourse($course_id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('role') !== 'admin') {
+            return redirect()->to('/auth/login')->with('error', 'Access denied.');
+        }
+
+        try {
+            $courseModel = new CourseModel();
+            $course = $courseModel->find($course_id);
+            
+            if (!$course) {
+                return redirect()->to('/admin/courses')->with('error', 'Course not found.');
+            }
+
+            // Start transaction
+            $this->db->transStart();
+
+            // Delete related materials files from filesystem
+            $materialModel = new \App\Models\MaterialModel();
+            $materials = $materialModel->getMaterialsByCourse($course_id);
+            
+            foreach ($materials as $material) {
+                $filePath = FCPATH . $material['file_path'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            // Delete materials from database
+            $materialModel->where('course_id', $course_id)->delete();
+
+            // Delete enrollments
+            $enrollmentModel = new EnrollmentModel();
+            $enrollmentModel->where('course_id', $course_id)->delete();
+
+            // Delete the course
+            $courseModel->delete($course_id);
+
+            // Complete transaction
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return redirect()->to('/admin/courses')->with('error', 'Failed to delete course. Please try again.');
+            }
+
+            return redirect()->to('/admin/courses')->with('success', 'Course "' . $course['title'] . '" and all related data have been successfully deleted.');
+
+        } catch (\Exception $e) {
+            log_message('error', 'Course deletion error: ' . $e->getMessage());
+            return redirect()->to('/admin/courses')->with('error', 'An error occurred while deleting the course.');
+        }
     }
 }

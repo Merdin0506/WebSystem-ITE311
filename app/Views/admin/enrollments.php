@@ -18,7 +18,7 @@
       <h1 class="h3 mb-0"><i class="fas fa-user-graduate"></i> Manage Enrollments</h1>
       <div class="d-flex gap-2">
         <a href="<?= site_url('admin/courses') ?>" class="btn btn-outline-secondary"><i class="fas fa-book"></i> Courses</a>
-        <a href="<?= site_url('auth/dashboard') ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <a href="<?= site_url('admin/dashboard') ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
       </div>
     </div>
 

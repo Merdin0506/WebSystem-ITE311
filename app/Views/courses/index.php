@@ -15,7 +15,16 @@
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h3 mb-0"><i class="fas fa-book-open"></i> Courses</h1>
-      <a href="<?= site_url('auth/dashboard') ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      <a href="<?php 
+          $userRole = session()->get('role');
+          if ($userRole === 'admin') {
+              echo site_url('admin/dashboard');
+          } elseif ($userRole === 'teacher') {
+              echo site_url('teacher/dashboard');
+          } else {
+              echo site_url('student/dashboard');
+          }
+      ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
     </div>
 
     <div id="flashArea"></div>
